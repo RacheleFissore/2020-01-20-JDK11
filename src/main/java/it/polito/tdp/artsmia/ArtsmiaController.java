@@ -3,6 +3,7 @@ package it.polito.tdp.artsmia;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.artsmia.model.Adiacenza;
 import it.polito.tdp.artsmia.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 public class ArtsmiaController {
 	
 	private Model model ;
+	private boolean entrato = false;
 
     @FXML
     private ResourceBundle resources;
@@ -31,7 +33,7 @@ public class ArtsmiaController {
     private Button btnCalcolaPercorso;
 
     @FXML
-    private ComboBox<?> boxRuolo;
+    private ComboBox<String> boxRuolo;
 
     @FXML
     private TextField txtArtista;
@@ -41,24 +43,50 @@ public class ArtsmiaController {
 
     @FXML
     void doArtistiConnessi(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Calcola artisti connessi");
+    	if(entrato) {
+    		txtResult.clear();
+        	txtResult.appendText("Calcola artisti connessi");
+        	for(Adiacenza adiacenza : model.artistiConnessi()) {
+        		txtResult.appendText(adiacenza + "\n");
+        	}
+    	}
+    	else {
+    		txtResult.appendText("Creare prima il grafo");
+    	}
     }
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
-    	txtResult.clear();
-    	txtResult.appendText("Calcola percorso");
+    	if(entrato && txtArtista.getText() != null) {
+    		txtResult.clear();
+    		txtResult.appendText("Calcola percorso\n");
+    		txtResult.appendText(model.calcolaPercorso(Integer.parseInt(txtArtista.getText())));
+    	}
+    	else {
+    		txtResult.appendText("Creare prima il grafo");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Crea grafo");
+    	txtResult.appendText("Crea grafo\n");
+    	entrato = true;
+    	
+    	if(boxRuolo.getItems() != null) {
+    		model.creaGrafo(boxRuolo.getValue());
+    		txtResult.appendText("# VERTICI: " + model.getNVertici());
+    		txtResult.appendText("\n# ARCHI: " + model.getNArchi());
+    	}
+    	else {
+    		txtResult.appendText("Selezionare un ruolo");
+    	}
     }
 
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	boxRuolo.getItems().addAll(model.getRuoli());
     }
 
     
@@ -70,6 +98,6 @@ public class ArtsmiaController {
         assert boxRuolo != null : "fx:id=\"boxRuolo\" was not injected: check your FXML file 'Artsmia.fxml'.";
         assert txtArtista != null : "fx:id=\"txtArtista\" was not injected: check your FXML file 'Artsmia.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Artsmia.fxml'.";
-
+        
     }
 }
